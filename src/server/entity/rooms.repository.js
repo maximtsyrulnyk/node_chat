@@ -1,111 +1,34 @@
 import { db } from '../utils/db.js';
 
+const getAll = async () => {
+  return db.room.findMany({
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
+};
+
 const getById = async (id) => {
   return db.room.findUnique({
     where: { id },
-    include: {
-      users: true,
-      messages: {
-        include: {
-          author: true,
-        },
-      },
-    },
   });
 };
 
-const getAllByUserId = async (userId) => {
-  return db.room.findMany({
-    where: {
-      users: {
-        some: { id: userId },
-      },
-    },
-    include: {
-      users: true,
-    },
-  });
-};
-
-const create = async (name, userId) => {
+const create = async (name) => {
   return db.room.create({
-    data: {
-      name,
-      users: { connect: { id: userId } },
-    },
-    include: {
-      users: true,
-      messages: {
-        include: {
-          author: true,
-        },
-      },
-    },
+    data: { name },
   });
 };
 
-const addUser = async (id, userId) => {
-  return db.room.update({
-    where: { id },
-    data: {
-      users: {
-        connect: { id: userId },
-      },
-    },
-    include: {
-      users: true,
-      messages: {
-        include: {
-          author: true,
-        },
-      },
-    },
-  });
-};
-
-const removeUser = async (id, userId) => {
-  return db.room.update({
-    where: { id },
-    data: {
-      users: {
-        disconnect: { id: userId },
-      },
-    },
-    include: {
-      users: true,
-    },
-  });
-};
-
-const renamed = async (id, name) => {
-  return db.room.update({
-    where: { id },
-    data: {
-      name,
-    },
-    include: {
-      users: true,
-      messages: {
-        include: {
-          author: true,
-        },
-      },
-    },
-  });
-};
-
-const deleteOne = async (id) => {
+const remove = async (id) => {
   return db.room.delete({
     where: { id },
   });
 };
 
 export const roomsRepository = {
+  getAll,
   getById,
-  getAllByUserId,
   create,
-  addUser,
-  deleteOne,
-  renamed,
-  removeUser,
+  remove,
 };

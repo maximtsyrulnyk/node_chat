@@ -1,25 +1,31 @@
 import { db } from '../utils/db.js';
 
-const getById = async (id) => {
-  return db.message.findUnique({
-    where: { id },
+const getAllByRoom = async (roomId) => {
+  return db.message.findMany({
+    where: { roomId },
+    include: {
+      user: true,
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
   });
 };
 
-const create = async (userId, text, roomId) => {
+const create = async ({ content, userId, roomId }) => {
   return db.message.create({
     data: {
-      text,
-      author: { connect: { id: userId } },
-      room: { connect: { id: roomId } },
+      content,
+      userId,
+      roomId,
     },
     include: {
-      author: true,
+      user: true,
     },
   });
 };
 
 export const messagesRepository = {
-  getById,
+  getAllByRoom,
   create,
 };
